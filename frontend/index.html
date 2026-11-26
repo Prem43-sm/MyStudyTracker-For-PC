@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MyStudyTracker</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">MY<span>STUDY</span>TRACKER</div>
+    <nav>
+      <button class="nav active" data-view="today">Today</button>
+      <button class="nav" data-view="worksheet">Worksheet</button>
+      <button class="nav" data-view="dashboard">Dashboard</button>
+      <button class="nav" data-view="calendar">Calendar</button>
+      <button class="nav" data-view="setup">Setup</button>
+      <button class="nav" data-view="settings">Settings</button>
+    </nav>
+  </aside>
+  <main>
+    <header><div><b id="pageTitle">Today</b><small id="todayDate"></small></div><button id="themeBtn" title="Toggle theme">◐</button></header>
+    <section id="content"></section>
+  </main>
+  <button class="fab" id="fab">+</button>
+  <div class="modal" id="modal"><div class="sheet"><button class="close" id="closeModal">×</button><div id="modalBody"></div></div></div>
+  <script src="/js/app.js?v=2"></script>
+</body>
+</html>

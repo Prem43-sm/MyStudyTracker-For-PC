@@ -1,0 +1,7 @@
+{
+  "theme": "system",
+  "compact": false,
+  "showTotals": true,
+  "autoSave": true,
+  "backupRetention": 30
+}

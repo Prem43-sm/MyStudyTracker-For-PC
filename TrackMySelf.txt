@@ -1,0 +1,2033 @@
+# TrackMySelf — OFFLINE WEBUI + XLSX ENGINE
+## MASTER CODEX BUILD PROMPT
+
+You are a senior full-stack engineer. Build a complete, production-quality **100% offline local WebUI engine** called:
+
+**MyStudyTracker**
+
+The application must provide a modern browser-based interface for entering, editing, viewing, and managing personal study/habit/work tracking data while using an **Excel `.xlsx` file as the primary human-readable data/workbook**.
+
+The user should NOT need to manually open Excel for normal tracking.
+
+The user opens the local WebUI, enters data there, and the engine automatically updates the Excel workbook.
+
+---
+
+# 1. CORE IDEA
+
+The system replaces the handwritten monthly tracker shown in the reference workbook.
+
+The user has customizable tracking items such as:
+
+- Wake up at 6 AM
+- Listen to music
+- No procrastination
+- Workout 30 min
+- Study 6 hrs+
+- Complete To-Do List
+- No Junk Food
+- No Scrolling (30m)
+- Meditation 5 min
+- 2 daily videos
+- Analysis for Day
+
+These are NOT hardcoded.
+
+The user must be able to:
+
+- Add tracking items
+- Rename tracking items
+- Delete/archive tracking items
+- Reorder tracking items
+- Change tracking type
+- Set targets
+- Change icons
+- Change categories
+- Enable/disable items
+- Create completely different tracking items
+
+Example user could instead create:
+
+- Read 30 pages
+- Practice Java
+- Gym
+- Research
+- Coding
+- Drink Water
+- Sleep before 11 PM
+- Work Project
+- DSA Problems
+- Meditation
+
+The system must be generic.
+
+---
+
+# 2. MOST IMPORTANT REQUIREMENT
+
+The application must work:
+
+**COMPLETELY OFFLINE.**
+
+No internet connection should be required.
+
+Do NOT depend on:
+
+- CDN
+- Google Fonts CDN
+- Bootstrap CDN
+- Tailwind CDN
+- external JavaScript libraries loaded from the internet
+- external APIs
+- cloud database
+- login server
+- online authentication
+- remote analytics
+- external chart API
+
+Everything required for the application must exist locally.
+
+---
+
+# 3. TECHNOLOGY
+
+Use a lightweight architecture.
+
+Recommended:
+
+Backend:
+- Python 3.11+
+- FastAPI
+- Uvicorn
+- openpyxl
+
+Frontend:
+- HTML
+- CSS
+- JavaScript
+
+Use local static assets.
+
+Avoid unnecessary frameworks.
+
+Do NOT build a huge Electron application.
+
+The application should run in the browser through:
+
+http://127.0.0.1:8000
+
+or another local port.
+
+The browser is only the UI.
+
+Python is the local engine.
+
+---
+
+# 4. PROJECT STRUCTURE
+
+Create a clean structure similar to:
+
+MyStudyTracker/
+│
+├── app/
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── tracker_api.py
+│   │   ├── workbook_api.py
+│   │   ├── settings_api.py
+│   │   └── dashboard_api.py
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── paths.py
+│   │   ├── validation.py
+│   │   └── backup.py
+│   │
+│   ├── services/
+│   │   ├── workbook_service.py
+│   │   ├── tracker_service.py
+│   │   ├── dashboard_service.py
+│   │   ├── mood_service.py
+│   │   └── export_service.py
+│   │
+│   ├── models/
+│   │   └── schemas.py
+│   │
+│   └── templates/
+│
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   │   ├── main.css
+│   │   ├── light.css
+│   │   └── dark.css
+│   │
+│   └── js/
+│       ├── app.js
+│       ├── api.js
+│       ├── worksheet.js
+│       ├── dashboard.js
+│       ├── settings.js
+│       └── ui.js
+│
+├── data/
+│   ├── MyStudyTracker_Sample.xlsx
+│   └── backups/
+│
+├── tests/
+│   ├── test_workbook.py
+│   ├── test_tracker.py
+│   ├── test_dashboard.py
+│   ├── test_api.py
+│   └── test_validation.py
+│
+├── requirements.txt
+├── README.md
+├── run.bat
+├── run.ps1
+└── .gitignore
+
+Adjust the structure if necessary, but keep the architecture clean.
+
+---
+
+# 5. EXCEL FILE
+
+The application must work with:
+
+**MyStudyTracker_Sample.xlsx**
+
+The workbook contains the monthly tracker concept.
+
+Do NOT destroy the existing workbook structure.
+
+Before modifying the workbook:
+
+1. Load it.
+2. Detect sheets.
+3. Detect the monthly worksheet.
+4. Detect the Dashboard sheet.
+5. Detect the Setup sheet.
+6. Preserve existing formatting where possible.
+7. Preserve formulas where possible.
+8. Preserve charts where possible.
+9. Create a backup before destructive workbook changes.
+
+The application must be able to create a workbook automatically if the file does not exist.
+
+---
+
+# 6. EXCEL AS PRIMARY DATA DOCUMENT
+
+The XLSX file should remain useful even if opened directly in Microsoft Excel.
+
+The WebUI is the easier control interface.
+
+When the user changes something in the WebUI:
+
+WebUI
+↓
+FastAPI
+↓
+Workbook Service
+↓
+openpyxl
+↓
+MyStudyTracker.xlsx
+
+The workbook should be updated safely.
+
+Do not require the user to manually export after every change.
+
+---
+
+# 7. SAFE EXCEL WRITING
+
+Never directly overwrite the original workbook in an unsafe way.
+
+Use:
+
+1. Temporary workbook
+2. Save temporary file
+3. Validate temporary file
+4. Replace original workbook atomically
+5. Create backup when appropriate
+
+Example:
+
+MyStudyTracker.xlsx
+↓
+MyStudyTracker.tmp.xlsx
+↓
+validate
+↓
+MyStudyTracker.xlsx
+
+If saving fails, the original file must remain intact.
+
+---
+
+# 8. BACKUP SYSTEM
+
+Before major changes:
+
+Create:
+
+data/backups/
+
+Example:
+
+MyStudyTracker_2026-11-26_150530.xlsx
+
+Keep configurable backup history.
+
+Provide:
+
+- Create backup
+- Restore backup
+- List backups
+- Delete old backup
+- Export copy
+
+Never silently delete the user's workbook.
+
+---
+
+# 9. MAIN WEBUI
+
+Design a modern responsive dashboard.
+
+Navigation:
+
+TODAY
+WORKSHEET
+DASHBOARD
+CALENDAR
+SETUP
+SETTINGS
+
+Desktop should provide a wide worksheet experience.
+
+Mobile browser should remain usable.
+
+Use a clean modern UI.
+
+The UI should feel like:
+
+"Digital notebook + modern productivity dashboard."
+
+---
+
+# 10. LIGHT THEME
+
+Provide a beautiful light theme.
+
+Characteristics:
+
+- white/off-white background
+- clean cards
+- subtle borders
+- soft shadows
+- readable typography
+- notebook-inspired worksheet
+- restrained colors
+- high contrast
+
+Do not make it look like a generic admin dashboard.
+
+---
+
+# 11. DARK THEME
+
+Provide a complete dark mode.
+
+Characteristics:
+
+- near-black background
+- dark cards
+- readable text
+- muted secondary text
+- suitable chart colors
+- good contrast
+- no bright white backgrounds
+
+Theme options:
+
+Light
+Dark
+System
+
+Save theme preference locally.
+
+---
+
+# 12. TODAY SCREEN
+
+Default screen.
+
+Show:
+
+MY STUDY TRACKER
+
+Today's date
+
+Today's completion:
+
+82%
+
+Then show all active tracking items.
+
+Example:
+
+Wake up at 6 AM        ✓
+Listen to music        ✓
+No procrastination     ✕
+Workout 30 min         ✓
+Study 6 hrs+           4.5 / 6 hrs
+Complete To-Do List    ✓
+No Junk Food           ✓
+No Scrolling (30m)     ✕
+Meditation 5 min       ✓
+2 daily videos         1 / 2
+Analysis for Day       ✓
+
+Every item should have a fast interaction.
+
+---
+
+# 13. FAST INPUT SYSTEM
+
+This is extremely important.
+
+The user must be able to update today's tracker very quickly.
+
+For checkbox item:
+
+CLICK
+→ completed
+
+CLICK AGAIN
+→ incomplete
+
+For numeric item:
+
+CLICK
+→ numeric input
+
+For duration:
+
+CLICK
+→ quick presets:
+
+15 min
+30 min
+45 min
+1 hour
+1h 30m
+2 hours
+Custom
+
+For rating:
+
+1
+2
+3
+4
+5
+
+For notes:
+
+small inline note field.
+
+Avoid opening a large form for every simple action.
+
+---
+
+# 14. QUICK ENTRY
+
+Add a floating:
+
++
+
+button.
+
+Options:
+
+Add Tracking Item
+Add Mood
+Add Study Session
+Add Note
+
+Quick entry should use modal/bottom-sheet style UI.
+
+---
+
+# 15. MONTHLY WORKSHEET
+
+This is the HEART of the application.
+
+Create a digital version of the reference Excel worksheet.
+
+Top:
+
+NOVEMBER 2026
+
+Tracking Item | 1 | 2 | 3 | 4 | 5 | ... | 30
+
+Rows:
+
+Wake up at 6 AM
+Listen to music
+No procrastination
+Workout 30 min
+Study 6 hrs+
+Complete To-Do List
+No Junk Food
+No Scrolling (30m)
+Meditation 5 min
+2 daily videos
+Analysis for Day
+
+Cells must be interactive.
+
+Click cell:
+
+✓
+
+Click again:
+
+✕
+
+For numeric items:
+
+value
+
+For duration:
+
+duration
+
+The current day must be visually highlighted.
+
+---
+
+# 16. MONTH NAVIGATION
+
+Provide:
+
+< Previous Month
+
+November 2026
+
+Next Month >
+
+Also:
+
+Today
+
+Month picker
+
+Year picker
+
+The worksheet must automatically support:
+
+28 days
+29 days
+30 days
+31 days
+
+Never hardcode November.
+
+---
+
+# 17. TRACKING ITEM SETUP
+
+Create a complete Setup page.
+
+Show:
+
+TRACKING ITEMS
+
+| Active | Name | Type | Target | Unit | Category | Order | Actions |
+|--------|------|------|--------|------|----------|-------|---------|
+
+Example:
+
+✓ | Wake up at 6 AM | Checkbox | — | — | Health
+✓ | Study 6 hrs+ | Duration | 360 | minutes | Study
+✓ | Workout 30 min | Duration | 30 | minutes | Health
+✓ | 2 daily videos | Number | 2 | videos | Content
+
+Actions:
+
+Edit
+Duplicate
+Archive
+Delete
+Move Up
+Move Down
+
+---
+
+# 18. ADD TRACKING ITEM
+
+Create a polished form.
+
+Fields:
+
+Name
+Description
+Type
+Category
+Icon
+Target
+Unit
+Color
+Active
+Start Date
+End Date
+
+Tracking Type options:
+
+CHECKBOX
+NUMBER
+DURATION
+RATING
+PERCENTAGE
+TEXT
+
+Examples:
+
+Study 6 hrs+
+Type = Duration
+Target = 360
+Unit = minutes
+
+Read 30 pages
+Type = Number
+Target = 30
+Unit = pages
+
+Workout
+Type = Checkbox
+
+---
+
+# 19. REORDER ITEMS
+
+Allow drag-and-drop ordering.
+
+The order must immediately affect:
+
+Today
+Worksheet
+Dashboard
+Excel worksheet
+
+---
+
+# 20. ARCHIVE VS DELETE
+
+Do NOT immediately destroy historical records when an item is removed.
+
+Archive should:
+
+- hide item from active tracking
+- preserve historical data
+
+Delete should require confirmation.
+
+If possible, provide:
+
+"Archive recommended"
+
+instead of permanent deletion.
+
+---
+
+# 21. MOOD TRACKING
+
+Create a separate Mood section.
+
+Default:
+
+Happy 😊
+Normal 😐
+Stressed 😟
+Sad 😞
+Angry 😠
+Excited 🤩
+Tired 😴
+Relaxed 😌
+
+Allow custom moods.
+
+Daily input should be extremely fast.
+
+Example:
+
+How are you feeling?
+
+😊 Happy
+😐 Normal
+😟 Stressed
+😞 Sad
+
+Optional:
+
+Intensity: 1–5
+
+Optional note.
+
+---
+
+# 22. MOOD GRAPH
+
+Create monthly mood graph.
+
+X-axis:
+
+1 → 30
+
+Y-axis:
+
+1 → 5
+
+Display the user's actual mood data.
+
+Do not invent missing values.
+
+Missing days should remain missing.
+
+---
+
+# 23. STUDY TRACKING
+
+Study items should optionally support:
+
+Duration
+Topic
+Pages
+Questions
+Notes
+
+Example:
+
+Java
+2h 30m
+
+DSA
+1h 20m
+
+DBMS
+45m
+
+Dashboard should calculate:
+
+Total study time
+Average study time
+Subject-wise study time
+Best study day
+Study streak
+
+---
+
+# 24. DASHBOARD
+
+Create a modern visual dashboard.
+
+Top cards:
+
+Monthly Completion
+Current Streak
+Best Streak
+Study Time
+Average Mood
+Completed Tasks
+
+Charts:
+
+1. Daily Completion
+2. Habit Completion
+3. Study Hours
+4. Mood Trend
+5. Weekly Performance
+6. Goal Progress
+7. Activity Heatmap
+
+Use locally generated charts.
+
+Do NOT use external chart services.
+
+---
+
+# 25. DASHBOARD FILTERS
+
+Allow:
+
+Today
+This Week
+This Month
+Previous Month
+Custom Range
+
+Filter by:
+
+Tracking Item
+Category
+Type
+
+Charts must update immediately.
+
+---
+
+# 26. CALENDAR VIEW
+
+Create a monthly calendar.
+
+Each day should show:
+
+Completion %
+Mood
+Study time
+
+Clicking a date opens:
+
+Daily Details
+
+---
+
+# 27. DAILY DETAILS
+
+Display:
+
+Date
+
+Tracking items
+
+Status
+
+Quantity
+
+Duration
+
+Mood
+
+Mood intensity
+
+Study sessions
+
+Notes
+
+Actions:
+
+Edit
+Mark all complete
+Copy previous day
+Clear day
+
+---
+
+# 28. EXCEL SYNCHRONIZATION
+
+Every important change must update the workbook.
+
+Examples:
+
+User checks:
+
+Workout = ✓
+
+The corresponding Excel cell becomes:
+
+✓
+
+User enters:
+
+Study = 5 hours
+
+Excel cell becomes:
+
+5
+
+User changes item name:
+
+Workout 30 min
+
+to:
+
+Gym 45 min
+
+Excel row label must update.
+
+User adds new tracking item:
+
+Read 20 pages
+
+A new row should appear in the monthly worksheet.
+
+User archives an item:
+
+It should no longer appear in the active worksheet while historical data should remain safe.
+
+---
+
+# 29. EXCEL SHEET STRUCTURE
+
+Maintain these logical sheets:
+
+1. Monthly Worksheet
+2. Dashboard
+3. Setup
+4. Data
+
+If necessary, create additional hidden/helper sheets.
+
+The "Data" sheet may contain normalized records required for reliable synchronization.
+
+Do not depend only on visual cell positions.
+
+Prefer stable IDs for tracking items.
+
+Example:
+
+TRACK-001
+TRACK-002
+TRACK-003
+
+This prevents problems when rows are reordered.
+
+---
+
+# 30. DATA SHEET
+
+Create a structured data table such as:
+
+ID
+DATE
+TRACKING_ITEM_ID
+VALUE
+STATUS
+NOTE
+CREATED_AT
+UPDATED_AT
+
+Example:
+
+TRACK-001
+2026-11-26
+ITEM-001
+1
+DONE
+Wake up early
+2026-11-26 06:20
+2026-11-26 06:20
+
+This makes the workbook data reliable.
+
+---
+
+# 31. SETTINGS
+
+Settings page:
+
+Appearance
+- Light
+- Dark
+- System
+
+Tracking
+- Default input type
+- Week starts Monday/Sunday
+- Auto-save
+
+Worksheet
+- Compact mode
+- Show totals
+- Show future days
+- Highlight today
+
+Notifications
+- Enable
+- Reminder time
+
+Backup
+- Automatic backup
+- Backup frequency
+- Backup retention
+
+Data
+- Export
+- Import
+- Restore
+- Reset
+
+---
+
+# 32. AUTO-SAVE
+
+Default behavior:
+
+User changes data
+↓
+Save locally
+↓
+Update workbook
+↓
+Show:
+
+Saved ✓
+
+Do not make the user press Save for every checkbox.
+
+For text fields, use debounce.
+
+For example:
+
+User typing
+↓
+wait 500ms
+↓
+save
+
+---
+
+# 33. OFFLINE STORAGE
+
+The primary persistent document is XLSX.
+
+You may optionally use a small local cache/state database if necessary.
+
+However:
+
+Do not create unnecessary duplicate data stores.
+
+If SQLite is used, define clearly which source is authoritative.
+
+Preferred architecture:
+
+XLSX = persistent user data/document
+Browser localStorage = UI preferences only
+
+Do not store the entire tracker dataset in localStorage.
+
+---
+
+# 34. CONCURRENCY / FILE LOCKING
+
+Handle the workbook safely.
+
+If Excel is currently open and locks the workbook:
+
+Show:
+
+"Excel file is currently in use. Close the workbook and try again."
+
+Do NOT corrupt the file.
+
+If possible, detect read/write permission errors and provide a clear recovery message.
+
+---
+
+# 35. WORKBOOK VALIDATION
+
+Before saving:
+
+Validate:
+
+- required sheets exist
+- required headers exist
+- dates are valid
+- tracking item IDs are unique
+- no invalid tracking type
+- no corrupted references
+
+After saving:
+
+Reload workbook in validation mode.
+
+If reload fails:
+
+Restore previous workbook.
+
+---
+
+# 36. FORMULAS
+
+Use formulas where appropriate.
+
+Examples:
+
+Monthly completion:
+
+completed / possible × 100
+
+Study total:
+
+SUM
+
+Count:
+
+COUNTIF
+
+But do not rely solely on Excel formulas for WebUI calculations.
+
+The Python engine must also calculate dashboard values.
+
+---
+
+# 37. CHARTS
+
+Charts must be generated in the WebUI.
+
+Excel charts may also be updated where practical.
+
+WebUI charts should not require internet.
+
+Use a lightweight local chart implementation.
+
+Do not load Chart.js from CDN.
+
+If using a library, bundle it locally.
+
+---
+
+# 38. SEARCH
+
+Add search.
+
+Search:
+
+Tracking items
+Notes
+Dates
+Subjects
+
+Example:
+
+Search:
+
+Java
+
+Results:
+
+Study Java
+Java DSA
+Java Project
+
+---
+
+# 39. DATA EXPORT
+
+Provide:
+
+Export XLSX
+Export CSV
+Export JSON
+Export PDF if practical
+
+The XLSX remains the main workbook.
+
+---
+
+# 40. IMPORT
+
+Allow importing an existing compatible MyStudyTracker workbook.
+
+Process:
+
+Select XLSX
+↓
+Validate
+↓
+Preview
+↓
+Confirm Import
+↓
+Backup current workbook
+↓
+Import
+
+Never overwrite user data without confirmation.
+
+---
+
+# 41. ERROR HANDLING
+
+Never show raw Python errors to the user.
+
+Instead:
+
+"Unable to save workbook."
+
+Details:
+
+"Excel file may be open or read-only."
+
+Provide:
+
+Retry
+Open Folder
+Create Backup
+
+Developer logs can contain technical details.
+
+---
+
+# 42. SECURITY
+
+Because this is a local personal application:
+
+- Bind server to 127.0.0.1 by default.
+- Do NOT expose it to the public network.
+- Do not collect analytics.
+- Do not send data anywhere.
+- Do not create unnecessary network permissions.
+- Sanitize file paths.
+- Validate uploaded/imported workbook.
+- Prevent path traversal.
+- Do not execute arbitrary workbook macros.
+
+---
+
+# 43. NO VBA / NO MACROS
+
+Do not require Excel VBA.
+
+The system must work with standard `.xlsx`.
+
+Do not create `.xlsm` unless explicitly requested.
+
+---
+
+# 44. PERFORMANCE
+
+The application should remain lightweight.
+
+Avoid:
+
+- huge frontend bundles
+- unnecessary dependencies
+- large images
+- background polling
+- constant workbook writes
+- unnecessary chart redraws
+
+Use:
+
+- debounced writes
+- efficient Excel access
+- in-memory state only where useful
+- lazy rendering
+- targeted API calls
+
+For checkbox updates, do not rewrite the entire workbook unnecessarily if a targeted update is safe.
+
+---
+
+# 45. WORKBOOK WRITE OPTIMIZATION
+
+Implement a WorkbookManager.
+
+Example conceptual API:
+
+load_workbook()
+save_workbook()
+update_tracking_item()
+update_daily_entry()
+update_mood()
+update_study_session()
+rebuild_month()
+update_dashboard()
+create_backup()
+restore_backup()
+
+Use one controlled workbook access layer.
+
+Do NOT scatter openpyxl calls throughout the application.
+
+---
+
+# 46. API DESIGN
+
+Create endpoints similar to:
+
+GET /api/health
+
+GET /api/items
+
+POST /api/items
+
+PUT /api/items/{id}
+
+DELETE /api/items/{id}
+
+POST /api/items/{id}/archive
+
+POST /api/items/reorder
+
+GET /api/month/{year}/{month}
+
+POST /api/entries
+
+PUT /api/entries/{id}
+
+DELETE /api/entries/{id}
+
+GET /api/mood/{year}/{month}
+
+POST /api/mood
+
+GET /api/dashboard
+
+GET /api/settings
+
+PUT /api/settings
+
+POST /api/backup
+
+GET /api/backups
+
+POST /api/restore
+
+POST /api/import
+
+GET /api/export/xlsx
+
+GET /api/export/csv
+
+GET /api/export/json
+
+---
+
+# 47. API RESPONSE FORMAT
+
+Use consistent JSON.
+
+Example:
+
+{
+  "success": true,
+  "data": {},
+  "error": null
+}
+
+Error:
+
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "WORKBOOK_LOCKED",
+    "message": "The Excel workbook is currently open."
+  }
+}
+
+---
+
+# 48. UI STATES
+
+Every screen must support:
+
+Loading
+Success
+Empty
+Error
+Saving
+Saved
+
+Example:
+
+Saving...
+
+Saved ✓
+
+Error:
+
+Could not save.
+
+Retry
+
+---
+
+# 49. ACCESSIBILITY
+
+Support:
+
+Keyboard navigation
+Visible focus
+Readable font sizes
+High contrast
+Tooltips
+ARIA labels
+Large touch targets
+
+Do not rely only on colors.
+
+For example:
+
+✓ Completed
+
+✕ Missed
+
+—not only green/red.
+
+---
+
+# 50. RESPONSIVE DESIGN
+
+Desktop:
+
+Large monthly worksheet.
+
+Tablet:
+
+Scrollable worksheet.
+
+Mobile:
+
+Compact worksheet with horizontal scrolling.
+
+Today page should be especially mobile-friendly.
+
+The application must not become unusable on a small screen.
+
+---
+
+# 51. KEYBOARD SHORTCUTS
+
+Desktop shortcuts:
+
+Space
+→ toggle selected item
+
+N
+→ next day
+
+P
+→ previous day
+
+T
+→ today
+
+M
+→ monthly worksheet
+
+D
+→ dashboard
+
+A
+→ add item
+
+S
+→ setup
+
+Do not interfere with normal text input fields.
+
+---
+
+# 52. DAILY COPY FEATURE
+
+Provide:
+
+"Copy yesterday"
+
+This copies selected tracking values to today.
+
+Require confirmation.
+
+Do not copy mood automatically unless explicitly enabled.
+
+---
+
+# 53. MONTHLY RESET
+
+Do NOT actually erase previous month.
+
+When month changes:
+
+November data remains.
+
+December begins empty.
+
+Historical months remain accessible.
+
+---
+
+# 54. DATE LOGIC
+
+Use local system date.
+
+Default timezone:
+
+system local timezone.
+
+Never hardcode dates.
+
+Correctly handle:
+
+Leap years
+Month boundaries
+Year boundaries
+
+---
+
+# 55. TESTING
+
+Create automated tests.
+
+Test:
+
+Tracking item creation
+Tracking item editing
+Tracking item deletion
+Tracking item archiving
+Reordering
+Daily checkbox
+Numeric values
+Duration values
+Mood
+Study sessions
+Monthly calculations
+Streaks
+Dashboard calculations
+Excel creation
+Excel update
+Excel backup
+Excel restore
+Excel validation
+Import
+Export
+API
+UI critical flows
+
+---
+
+# 56. EXCEL TESTS
+
+Automated test:
+
+1. Create temporary workbook.
+2. Add tracking item.
+3. Add daily entry.
+4. Save.
+5. Reload.
+6. Verify cell.
+7. Modify.
+8. Reload.
+9. Verify modification.
+10. Verify formatting remains intact.
+
+Also test:
+
+28-day month
+29-day month
+30-day month
+31-day month
+
+---
+
+# 57. CORRUPTION TEST
+
+Simulate:
+
+- failed save
+- permission error
+- invalid workbook
+- missing sheet
+- missing header
+- duplicate item ID
+
+Verify that the original valid workbook remains safe.
+
+---
+
+# 58. PERFORMANCE TEST
+
+Create test dataset:
+
+100 tracking items
+365 days
+multiple entries per day
+
+Verify:
+
+- API remains responsive
+- worksheet loads correctly
+- dashboard loads correctly
+- memory does not grow uncontrollably
+- workbook remains valid
+
+---
+
+# 59. FIRST RUN
+
+When the user launches the application for the first time:
+
+Show:
+
+Welcome to MyStudyTracker
+
+"Your offline digital monthly tracker."
+
+Buttons:
+
+Create New Tracker
+
+Open Existing XLSX
+
+If creating new:
+
+Ask:
+
+Name
+Month
+Year
+First tracking items
+
+Then create workbook automatically.
+
+---
+
+# 60. STARTUP
+
+Create:
+
+run.bat
+
+It should:
+
+1. Check Python.
+2. Create virtual environment if necessary.
+3. Install requirements if missing.
+4. Start FastAPI.
+5. Open browser automatically.
+
+Example:
+
+http://127.0.0.1:8000
+
+Also create:
+
+run.ps1
+
+for PowerShell.
+
+---
+
+# 61. REQUIREMENTS.TXT
+
+Keep dependencies minimal.
+
+Expected:
+
+fastapi
+uvicorn
+openpyxl
+pydantic
+
+Add other dependencies only if genuinely required.
+
+Do NOT add dozens of packages.
+
+---
+
+# 62. README
+
+Write a complete README containing:
+
+Installation
+First run
+How to start
+How to stop
+Workbook location
+Backup location
+How to use
+How to add items
+How to edit items
+How to change theme
+How to restore backup
+How to import workbook
+How to troubleshoot Excel lock
+How to run tests
+
+---
+
+# 63. SAMPLE DATA
+
+Use the supplied:
+
+MyStudyTracker_Sample.xlsx
+
+as the initial sample workbook if it exists in the project directory.
+
+Do not replace it.
+
+Make a working copy when necessary.
+
+The default sample tracking items should be:
+
+Wake up at 6 AM
+Listen to music
+No procrastination
+Workout 30 min
+Study 6 hrs+
+Complete To-Do List
+No Junk Food
+No Scrolling (30m)
+Meditation 5 min
+2 daily videos
+Analysis for Day
+
+---
+
+# 64. IMPORTANT: USER CUSTOMIZATION
+
+The Setup screen is NOT just for technical configuration.
+
+It is the main place where the user controls what they track.
+
+The user must be able to change:
+
+"Wake up at 6 AM"
+
+to:
+
+"Wake up before 7 AM"
+
+or completely replace it with:
+
+"Morning Exercise"
+
+without changing source code.
+
+No hardcoded tracker logic.
+
+---
+
+# 65. TRACKING TYPES
+
+Implement at minimum:
+
+CHECKBOX
+
+NUMBER
+
+DURATION
+
+RATING
+
+PERCENTAGE
+
+TEXT
+
+Each type must have appropriate UI.
+
+---
+
+# 66. EXAMPLE
+
+User creates:
+
+Name:
+Study Python
+
+Type:
+Duration
+
+Target:
+180
+
+Unit:
+minutes
+
+The Today UI shows:
+
+Study Python
+
+[ 15m ] [ 30m ] [ 1h ] [ Custom ]
+
+User chooses:
+
+1h
+
+The worksheet cell becomes:
+
+1h
+
+Dashboard includes it in study statistics.
+
+---
+
+# 67. WORKSHEET VISUAL DESIGN
+
+The worksheet should resemble the user's handwritten tracker concept.
+
+Use:
+
+- monthly title
+- tracking item column
+- day columns
+- compact cells
+- checkmarks
+- crosses
+- totals
+- highlighted current date
+- mood section
+- clean grid
+
+But make it digitally polished.
+
+Do NOT literally reproduce copyrighted artwork or decorative elements from the reference.
+
+Use the reference only as UX inspiration.
+
+---
+
+# 68. DASHBOARD DESIGN
+
+Make it visually better than the Excel sheet.
+
+Header:
+
+MyStudyTracker
+
+November 2026
+
+82% Monthly Progress
+
+Then:
+
+[Completion]
+[Study]
+[Streak]
+[Mood]
+
+Then charts.
+
+Then:
+
+Top Performing Items
+
+Needs Attention
+
+Recent Activity
+
+Monthly Insights
+
+---
+
+# 69. NO CLOUD
+
+Do not implement:
+
+Firebase
+Supabase
+MongoDB cloud
+AWS
+Google Drive
+Remote APIs
+
+unless they are explicitly requested later.
+
+Version 1 must be completely offline.
+
+---
+
+# 70. LOCAL DATA LOCATION
+
+Keep user data in a clearly visible local folder.
+
+Example:
+
+data/
+    MyStudyTracker.xlsx
+    backups/
+    exports/
+
+Do not hide the user's primary workbook deep inside a generated cache directory.
+
+---
+
+# 71. LOGGING
+
+Create:
+
+logs/
+
+Use rotating logs.
+
+Log:
+
+startup
+API errors
+workbook errors
+backup operations
+imports
+exports
+
+Do NOT log private user notes unnecessarily.
+
+---
+
+# 72. DEVELOPMENT MODE
+
+Provide:
+
+DEBUG mode
+
+with detailed developer errors.
+
+Production mode:
+
+user-friendly errors.
+
+---
+
+# 73. FINAL QA
+
+Before saying the project is complete, actually run:
+
+1. Install dependencies.
+2. Start server.
+3. Open health endpoint.
+4. Open WebUI.
+5. Create item.
+6. Edit item.
+7. Complete item.
+8. Change month.
+9. Add mood.
+10. Add study session.
+11. Open dashboard.
+12. Change theme.
+13. Save workbook.
+14. Open workbook with openpyxl.
+15. Verify workbook is valid.
+16. Create backup.
+17. Restore backup.
+18. Run automated tests.
+19. Run performance tests.
+
+Fix all errors found.
+
+Do NOT simply claim tests passed without actually running them.
+
+---
+
+# 74. FINAL DELIVERABLE
+
+The finished project must contain:
+
+[ ] Working FastAPI backend
+[ ] Working offline WebUI
+[ ] Light theme
+[ ] Dark theme
+[ ] Today screen
+[ ] Monthly worksheet
+[ ] Dashboard
+[ ] Calendar
+[ ] Setup screen
+[ ] Custom tracking items
+[ ] Item reorder
+[ ] Item archive
+[ ] Quick input
+[ ] Mood tracker
+[ ] Study tracker
+[ ] XLSX synchronization
+[ ] XLSX backup
+[ ] XLSX restore
+[ ] CSV export
+[ ] JSON export
+[ ] Import
+[ ] Error handling
+[ ] Validation
+[ ] Tests
+[ ] README
+[ ] run.bat
+[ ] run.ps1
+[ ] requirements.txt
+
+---
+
+# 75. MOST IMPORTANT PRODUCT RULES
+
+RULE 1:
+The user controls what is tracked.
+
+RULE 2:
+The user should not have to manually edit Excel for normal daily tracking.
+
+RULE 3:
+Excel must remain a usable standalone workbook.
+
+RULE 4:
+The application must work without internet.
+
+RULE 5:
+Never corrupt or silently overwrite the user's workbook.
+
+RULE 6:
+Historical data must remain available.
+
+RULE 7:
+The interface must make daily input extremely fast.
+
+RULE 8:
+Do not hardcode the sample tracking items into the application's business logic.
+
+RULE 9:
+Keep memory and dependency usage low.
+
+RULE 10:
+Test the actual XLSX read/write behavior.
+
+---
+
+# 76. START IMPLEMENTATION NOW
+
+First inspect the existing project/workspace and locate:
+
+MyStudyTracker_Sample.xlsx
+
+If it exists, inspect its workbook structure using openpyxl before designing the workbook synchronization layer.
+
+Do not blindly overwrite it.
+
+Then:
+
+1. Create project structure.
+2. Implement workbook manager.
+3. Implement data model.
+4. Implement FastAPI.
+5. Implement frontend.
+6. Implement worksheet.
+7. Implement Setup.
+8. Implement Dashboard.
+9. Implement Mood.
+10. Implement Study tracking.
+11. Implement backup.
+12. Implement import/export.
+13. Implement tests.
+14. Run all tests.
+15. Fix failures.
+16. Start the application.
+17. Verify the complete workflow.
+
+Do not stop at a prototype mockup.
+
+Build a functioning local application.
+
+At completion, provide:
+
+- exact project structure
+- setup instructions
+- run command
+- test command
+- workbook location
+- backup location
+- list of implemented features
+- test results
+- known limitations, if any
+
+The final result must be a genuinely usable **offline MyStudyTracker WebUI + XLSX management engine**.
