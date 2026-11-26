@@ -1,0 +1,268 @@
+MYSTUDYTRACKER - WINDOWS SETUP GUIDE
+====================================
+
+This guide explains how to download and run MyStudyTracker on another Windows PC.
+No internet access is required after cloning/download and installing Python/packages.
+
+
+1. REQUIREMENTS
+---------------
+
+You need:
+
+- Windows 10 or Windows 11
+- Internet connection for the first setup
+- Git (recommended)
+- Python 3.11 or newer
+
+To check Git:
+
+  git --version
+
+To check Python:
+
+  python --version
+
+If Python or Git is not found, install it and close/reopen Command Prompt or PowerShell.
+
+
+2. DOWNLOAD THE PROJECT
+-----------------------
+
+Option A: Using Git (recommended)
+
+Open Command Prompt or PowerShell and run:
+
+  git clone https://github.com/Prem43-sm/MyStudyTracker-For-PC.git
+  cd MyStudyTracker-For-PC
+
+Option B: Using the GitHub ZIP
+
+1. Open:
+
+   https://github.com/Prem43-sm/MyStudyTracker-For-PC
+
+2. Click "Code".
+3. Click "Download ZIP".
+4. Extract the ZIP file.
+5. Open the extracted folder.
+
+
+3. INSTALL PYTHON
+-----------------
+
+Download and install Python 3.11 or newer from:
+
+  https://www.python.org/downloads/
+
+Important during installation:
+
+- Enable "Add python.exe to PATH".
+- Enable "Install launcher for all users" if available.
+- Complete the installation.
+
+Verify Python:
+
+  python --version
+
+
+4. AUTOMATIC SETUP
+------------------
+
+From the project folder:
+
+Double-click:
+
+  setup.bat
+
+The setup script will:
+
+- Create a virtual environment named ".venv"
+- Upgrade pip
+- Install required Python packages
+- Prepare the project to run
+
+Do not close the setup window until it shows:
+
+  Setup complete. Run run.bat to start MyStudyTracker.
+
+PowerShell alternative:
+
+1. Open PowerShell in the project folder.
+2. Run:
+
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+   .\setup.ps1
+
+
+5. START THE APPLICATION
+------------------------
+
+Double-click:
+
+  run.bat
+
+A browser will open automatically at:
+
+  http://127.0.0.1:8000
+
+PowerShell alternative:
+
+  .\run.ps1
+
+Keep the terminal window open while using MyStudyTracker.
+To stop the application, press CTRL+C in the terminal window.
+
+
+6. FIRST-TIME DATA
+------------------
+
+The project includes:
+
+- data/MyStudyTracker.xlsx
+- MyStudyTracker_Sample.xlsx
+
+The application uses:
+
+  data/MyStudyTracker.xlsx
+
+The original sample workbook is preserved as:
+
+  MyStudyTracker_Sample.xlsx
+
+Do not manually edit or move the workbook while the server is running.
+
+
+7. MAIN USAGES
+--------------
+
+- Today: Enter daily tracking values.
+- Worksheet: View and edit a full month.
+- Dashboard: View completion and study summaries.
+- Calendar: Navigate to worksheet mode.
+- Setup: Add or edit tracking items.
+- Settings: Change theme and export data.
+- Plus button: Add a tracking item.
+
+The floating plus button is used to create a new tracking item.
+
+
+8. WORKBOOK BACKUPS
+-------------------
+
+Backups are stored in:
+
+  data/backups/
+
+Create a backup from:
+
+  Settings -> Create Backup
+
+To export data:
+
+- Settings -> Export XLSX
+- Settings -> Export CSV
+- Settings -> Export JSON
+
+
+9. UPDATING THE PROJECT
+-----------------------
+
+If downloaded with Git, open a terminal in the project folder and run:
+
+  git pull origin main
+  setup.bat
+  run.bat
+
+Do not put personal workbook data in the Git repository unless you want to share it.
+Before updating, back up your current workbook.
+
+
+10. TROUBLESHOOTING
+-------------------
+
+Problem: "python is not recognized"
+
+Solution:
+
+1. Install Python 3.11 or newer.
+2. Enable "Add Python to PATH".
+3. Close and reopen Command Prompt/PowerShell.
+4. Run:
+
+   python --version
+
+Problem: "git is not recognized"
+
+Solution:
+
+- Download Git for Windows from:
+
+  https://git-scm.com/download/win
+
+- Restart the terminal and verify:
+
+  git --version
+
+Problem: Browser shows "This site can't be reached"
+
+Solution:
+
+1. Ensure run.bat or run.ps1 is still running.
+2. Wait until the terminal shows that Uvicorn has started.
+3. Open:
+
+   http://127.0.0.1:8000
+
+Problem: Port 8000 is already in use
+
+Solution:
+
+1. Close the previous MyStudyTracker terminal window.
+2. Run run.bat again.
+3. If another application is still using port 8000, restart the PC.
+
+Problem: setup.bat fails during package installation
+
+Solution:
+
+1. Check your internet connection.
+2. Delete the ".venv" folder.
+3. Run setup.bat again.
+
+
+11. MANUAL SETUP (ADVANCED)
+---------------------------
+
+Open Command Prompt in the project folder and run:
+
+  python -m venv .venv
+  .venv\Scripts\activate
+  python -m pip install --upgrade pip
+  python -m pip install -r requirements.txt
+  python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+Then open:
+
+  http://127.0.0.1:8000
+
+
+12. TEST THE INSTALLATION
+-------------------------
+
+Run:
+
+  .venv\Scripts\python.exe -m pytest -q
+
+A successful installation should show:
+
+  3 passed
+
+
+IMPORTANT NOTES
+---------------
+
+- MyStudyTracker is a local application.
+- It stores workbook data on the PC.
+- It does not require login or cloud storage.
+- Keep data/MyStudyTracker.xlsx and data/backups/ when moving the project.
